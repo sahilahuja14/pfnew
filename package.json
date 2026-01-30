@@ -1,0 +1,32 @@
+{
+  "name": "portfolio",
+  "version": "1.0.0",
+  "description": "Sahil Ahuja's Portfolio Website - React + Vite Frontend, Node.js + Express Backend",
+  "private": true,
+  "scripts": {
+    "client:install": "cd client && npm install",
+    "server:install": "cd server && npm install",
+    "install-all": "npm run client:install && npm run server:install",
+    "client:dev": "cd client && npm run dev",
+    "server:dev": "cd server && npm run dev",
+    "client:build": "cd client && npm run build",
+    "server:start": "cd server && npm start"
+  },
+  "keywords": [
+    "portfolio",
+    "react",
+    "vite",
+    "node.js",
+    "express",
+    "email"
+  ],
+  "author": "Sahil Ahuja",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sahilahuja14/portfolio.git"
+  },
+  "dependencies": {
+    "lucide-react": "^0.563.0"
+  }
+}
