@@ -1,72 +1,98 @@
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
+import { useCardReveal } from '../hooks/useCardReveal';
+import { useElementReveal } from '../hooks/useElementReveal';
 
 const Experience = () => {
   const [ref, isVisible] = useIntersectionObserver();
+  const cardContainerRef = useCardReveal();
+  const pillRef = useElementReveal({ inClass: 'pill-in', selector: '[data-pill-reveal]' });
 
   const experiences = [
     {
-      title: "Data Analyst Intern",
-      company: "Blupi Consulting Pvt. Ltd",
-      location: "Gurugram",
-      period: "Nov 2025 - Jan 2026",
+      title: "Data Scientist",
+      company: "AAA2 Innovate Pvt Ltd",
+      dateStart: "FEB 26 -",
+      dateEnd: "AUG 26",
+      responsibilities: [
+        "Built a multi-country customs duty warehouse covering 250+ country duty data across 12,500+ HSN codes.",
+        "Developed a confidence-scored entity-resolution pipeline cross-referencing 218,000+ companies against MCA/ ROC and GST records.",
+        "Built XGBoost models for credit-risk scoring with 0.911+ AUC and freight-rate prediction for real-time and bulk decisions.",
+        "a thread-safe caching and snapshot engine with cursor pagination, background refresh, feature validation, and model registry versioning.",
+      ],
+      mobileSummary: [
+        "Duty warehouse: 250+ countries, 12.5K HSN codes",
+        "Entity resolution across 218K+ company records",
+        "XGBoost credit-risk and freight prediction models",
+        "Caching, pagination, validation, and model registry",
+      ]
+    },
+    {
+      title: "Data Analysis Intern",
+      company: "BluePi Consulting Pvt Ltd",
+      dateStart: "NOV 25 -",
+      dateEnd: "JAN 26",
       responsibilities: [
         "Analyzed complex datasets and created actionable insights for stakeholder decision-making",
         "Developed interactive dashboards and reports using data visualization tools",
         "Conducted data quality assessments and implemented data cleaning processes",
         "Collaborated with cross-functional teams to identify business KPIs and metrics",
-        "Prepared comprehensive presentations of findings and recommendations to leadership"
+      ],
+      mobileSummary: [
+        "Analyzed datasets for stakeholder decisions",
+        "Built interactive dashboards and reports",
+        "Cleaned data and tracked business KPIs",
       ]
     }
   ];
 
   return (
-    <section id="experience" className="py-24 bg-[#020617] relative overflow-hidden">
-      {/* Background Glow */}
-      <div className="absolute top-1/4 left-0 w-[500px] h-[500px] bg-purple-900/10 rounded-full blur-[120px]" />
+    <section id="experience" className="glass-theme-section py-24 relative">
 
-      <div ref={ref} className={`max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0 animate-slide-up' : 'opacity-0 translate-y-20'}`}>
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Experience</h2>
-          <p className="text-slate-400">My professional journey and key achievements</p>
+      <div ref={ref} className={`max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 relative scroll-reveal ${isVisible ? 'is-visible' : ''}`}>
+
+        {/* Section Title — Glass pill */}
+        <div className="flex justify-center mb-16" ref={pillRef}>
+          <div className="experience-title-pill" data-pill-reveal>
+            <span className="experience-title-text">Work</span>
+            <span className="experience-title-text"> X<sup>p</sup></span>
+          </div>
         </div>
 
-        <div className="space-y-8">
+        {/* Two-column experience cards */}
+        <div className="grid md:grid-cols-2 gap-8 items-stretch" ref={cardContainerRef}>
           {experiences.map((exp, idx) => (
             <div
               key={idx}
-              className={`relative bg-gradient-to-br from-white/5 to-white/10 border border-white/20 rounded-2xl p-8 hover:border-purple-500/50 transition-all duration-300 transform ${
-                isVisible ? 'animate-slide-from-left' : ''
-              }`}
+              data-card-reveal
+              className="experience-glass-card flex flex-col h-full"
               style={{ animationDelay: `${idx * 100}ms` }}
             >
-              {/* Left Purple Border */}
-              <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-purple-500 to-purple-600 rounded-l-2xl" />
-
-              {/* Content */}
-              <div className="pl-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-6">
-                  <div>
-                    <h3 className="text-2xl font-bold text-white mb-2">{exp.title}</h3>
-                    <p className="text-slate-300">
-                      <span className="font-semibold text-purple-400">{exp.company}</span>
-                      <span className="text-slate-500"> | {exp.location}</span>
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-purple-400 font-semibold">{exp.period}</p>
-                  </div>
-                </div>
-
-                {/* Responsibilities */}
-                <ul className="space-y-3">
-                  {exp.responsibilities.map((resp, i) => (
-                    <li key={i} className="flex items-start text-slate-300">
-                      <span className="inline-block w-2 h-2 rounded-full bg-purple-500 mt-2 mr-4 flex-shrink-0" />
-                      <span>{resp}</span>
-                    </li>
-                  ))}
-                </ul>
+              {/* Card Header */}
+              <div className="experience-card-header">
+                <h3 className="experience-role">{exp.title}</h3>
               </div>
+
+              <div className="experience-card-meta">
+                <span className="experience-company">{exp.company}</span>
+                <span className="experience-dates">{exp.dateStart}   {exp.dateEnd}</span>
+              </div>
+
+              {/* Responsibilities */}
+              <div className="experience-card-body experience-card-body--desktop">
+                {exp.responsibilities.map((resp, i) => (
+                  <p key={i} className="experience-responsibility">
+                    {resp}
+                  </p>
+                ))}
+              </div>
+
+              <ul className="experience-mobile-points">
+                {exp.mobileSummary.map((point, i) => (
+                  <li key={i} className="experience-mobile-point">
+                    {point}
+                  </li>
+                ))}
+              </ul>
             </div>
           ))}
         </div>

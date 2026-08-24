@@ -1,62 +1,120 @@
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Moon, Sun } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
-const Navbar = ({ activeSection, scrollToSection, isMenuOpen, setIsMenuOpen }) => (
-  <nav className="fixed top-0 w-full z-50 bg-[#030014]/80 backdrop-blur-xl border-b border-white/5">
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="flex items-center justify-between h-20">
-        <div className="flex-shrink-0 cursor-pointer group" onClick={() => scrollToSection('home')}>
-          <span className="text-2xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent group-hover:opacity-80 transition-opacity">
-            SA
-          </span>
-        </div>
-        
-        {/* Desktop Menu */}
-        <div className="hidden md:block">
-          <div className="ml-10 flex items-baseline space-x-8">
-            {['About', 'Experience', 'Skills', 'Projects', 'Contact'].map((item) => (
+const navItems = ['About', 'Skills', 'Experience', 'Contact'];
+
+const Navbar = ({ activeSection, scrollToSection, isMenuOpen, setIsMenuOpen, theme, toggleTheme }) => {
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    let scrollTimeout;
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      if (currentScrollY < lastScrollY || currentScrollY < 50) {
+        // Show if scrolling up or at the very top
+        setIsVisible(true);
+      } else if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        // Hide if scrolling down past a small threshold
+        setIsVisible(false);
+        setIsMenuOpen(false); // Close mobile menu if it was open
+      }
+
+      setLastScrollY(currentScrollY);
+
+      // Show navbar automatically when scrolling stops for 800ms
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        setIsVisible(true);
+      }, 80);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      clearTimeout(scrollTimeout);
+    };
+  }, [lastScrollY, setIsMenuOpen]);
+
+  return (
+    <nav
+      className={`portfolio-nav fixed left-0 right-0 z-50 transition-transform duration-300 ease-in-out ${isVisible ? 'translate-y-0' : '-translate-y-[150%]'
+        }`}
+    >
+      <div className="mx-auto flex w-full max-w-[872px] items-center justify-center px-4 gap-3">
+        <div className="nav-glass-shell hidden h-12 w-full items-center justify-around md:flex">
+          {navItems.map((item) => {
+            const section = item.toLowerCase();
+            return (
               <button
                 key={item}
-                onClick={() => scrollToSection(item.toLowerCase())}
-                className={`transition-all duration-300 px-3 py-2 text-sm font-medium hover:text-purple-400 ${
-                  activeSection === item.toLowerCase() ? 'text-purple-400' : 'text-slate-300'
-                }`}
+                type="button"
+                onClick={() => scrollToSection(section)}
+                className={`nav-glass-link ${activeSection === section ? 'nav-glass-link--active' : ''}`}
               >
                 {item}
               </button>
-            ))}
-            <button 
-              onClick={() => scrollToSection('contact')}
-              className="shine-button px-6 py-2.5 rounded-full text-sm font-medium text-white transition-all duration-300 shadow-lg shadow-purple-500/30"
+            );
+          })}
+        </div>
+
+        <button
+          onClick={toggleTheme}
+          className="hidden md:flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/5 backdrop-blur-md text-white/70 hover:text-white hover:bg-white/10 transition-all duration-300"
+          aria-label="Toggle Theme"
+        >
+          {theme === 'red' ? <Moon size={20} /> : <Sun size={20} />}
+        </button>
+
+        <div className="nav-glass-shell flex h-12 w-full items-center justify-between px-4 md:hidden">
+          <button
+            type="button"
+            onClick={() => scrollToSection('home')}
+            className="text-base font-semibold text-white"
+          >
+            Sahil Ahuja
+          </button>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={toggleTheme}
+              className="text-white/70 hover:text-white transition-colors"
+              aria-label="Toggle Theme"
             >
-              Let's Talk
+              {theme === 'red' ? <Moon size={20} /> : <Sun size={20} />}
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="mobile-menu-trigger"
+              aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+            >
+              {isMenuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
           </div>
         </div>
-
-        {/* Mobile menu button */}
-        <div className="md:hidden">
-          <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-300 hover:text-white p-2">
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
       </div>
-    </div>
 
-    {/* Mobile Menu */}
-    <div className={`md:hidden absolute w-full bg-[#030014]/95 border-t border-white/10 transition-all duration-300 ease-in-out ${isMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}>
-      <div className="px-4 pt-2 pb-6 space-y-2">
-        {['About', 'Experience', 'Skills', 'Projects', 'Contact'].map((item) => (
-          <button
-            key={item}
-            onClick={() => scrollToSection(item.toLowerCase())}
-            className="text-gray-300 hover:text-purple-400 block px-3 py-3 text-base font-medium w-full text-left rounded-lg hover:bg-white/5"
-          >
-            {item}
-          </button>
-        ))}
+      <div
+        className={`mobile-nav-panel mx-4 mt-3 md:hidden transition-all duration-300 ${isMenuOpen ? 'pointer-events-auto translate-y-0 opacity-100' : 'pointer-events-none -translate-y-4 opacity-0'
+          }`}
+      >
+        {navItems.map((item) => {
+          const section = item.toLowerCase();
+          return (
+            <button
+              key={item}
+              type="button"
+              onClick={() => scrollToSection(section)}
+              className={`mobile-nav-link ${activeSection === section ? 'mobile-nav-link--active' : ''}`}
+            >
+              {item}
+            </button>
+          );
+        })}
       </div>
-    </div>
-  </nav>
-);
+    </nav>
+  );
+};
 
 export default Navbar;

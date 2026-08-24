@@ -1,83 +1,142 @@
-import { Github, ExternalLink } from 'lucide-react';
+import { Github, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
+import { useCardReveal } from '../hooks/useCardReveal';
+import { useElementReveal } from '../hooks/useElementReveal';
+import { useState } from 'react';
+
+const ProjectCard = ({ project, idx, cardDelay }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  return (
+    <div
+      data-card-reveal
+      className="project-glass-card group"
+      style={{ animationDelay: `${cardDelay}ms` }}
+    >
+      {/* Index badge + Period */}
+      <div className="project-card-meta flex items-baseline justify-between mb-5">
+        <span className="project-index">{String(idx + 1).padStart(2, '0')}</span>
+        <span className="text-white/50 text-sm font-medium">{project.period}</span>
+      </div>
+
+      {/* Title */}
+      <h3 className="project-card-title text-2xl md:text-3xl font-semibold text-white mb-4">{project.title}</h3>
+
+      {/* Description */}
+      <p className="project-card-desc text-white/80 text-lg mb-4 leading-relaxed">{project.desc}</p>
+
+      {/* Expandable highlights */}
+      <div className={`project-highlights space-y-4 ${isExpanded ? 'block' : 'hidden md:block'}`}>
+        <ul className="project-highlight-list space-y-2">
+          {project.highlights.map((h) => (
+            <li key={h} className="project-highlight-item flex items-start text-white/70 text-base">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-white/40 mt-2 mr-3 flex-shrink-0" />
+              <span>{h}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <button
+        className="project-read-more md:hidden flex items-center gap-1 text-white/60 text-sm font-medium mb-4 mt-2 hover:text-white transition-colors"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        {isExpanded ? (
+          <>Show Less <ChevronUp size={16} /></>
+        ) : (
+          <>Read More <ChevronDown size={16} /></>
+        )}
+      </button>
+
+      {/* Tags */}
+      <div className="project-tags flex flex-wrap gap-2 mb-5 mt-auto">
+        {project.tags.map(tag => (
+          <span key={tag} className="project-tag">{tag}</span>
+        ))}
+      </div>
+
+      {/* Links */}
+      <div className="project-links flex flex-wrap gap-4">
+        {project.links.map((link) => (
+          <a
+            key={link.url}
+            href={link.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="project-link group/btn"
+          >
+            <Github size={18} className="mr-2" />
+            <span>{link.label}</span>
+            <ExternalLink size={14} className="ml-2 opacity-0 -translate-x-2 group-hover/btn:opacity-100 group-hover/btn:translate-x-0 transition-all duration-300" />
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 const Projects = () => {
   const [ref, isVisible] = useIntersectionObserver();
+  const cardContainerRef = useCardReveal();
+  const pillRef = useElementReveal({ inClass: 'pill-in', selector: '[data-pill-reveal]' });
 
   const projects = [
     {
-      title: "Drone Detect",
-      desc: "An AI application that utilizes computer vision and YOLOV8 model to detect and track drones in real-time using webcam input with special safety console and alert system.",
-      tags: ["React", "OpenCV", "Django", "Rest API"],
-      image: "/assets/drone.png",
-      codeUrl: "https://github.com/sahilahuja14/Drone-Detect-app.git",
+      title: "Customer Credit Risk Prediction",
+      period: "June 2026",
+      desc: "End-to-end credit-risk scoring pipeline with XGBoost model deployment, FastAPI scoring, and dashboard-ready risk categorization.",
+      highlights: [
+        "Processed 500,000+ live customer records with automated risk categories.",
+        "Improved model AUC to 0.911+ using WOE and IV-driven feature engineering."
+      ],
+      tags: ["Python", "XGBoost", "Scikit-learn", "FastAPI", "ML"],
+      links: [
+        { label: "Model Repo", url: "https://github.com/sahilahuja14/house-price-prediction.git" },
+        { label: "Backend", url: "https://github.com/abhishhhek/Dashboard-backend.git" },
+      ],
     },
     {
-      title: "Employee Management System",
-      desc: "Full-stack application for managing employee data, including CRUD operations, role management, and department organization with real-time updates.",
-      tags: ["React", "Node.js", "MongoDB", "Express"],
-      image: "/assets/emse.png",
-      codeUrl: "https://github.com/sahilahuja14",
+      title: "Drone Detection App",
+      period: "June 2025",
+      desc: "Real-time perimeter-security system using YOLOv8 and OpenCV to detect drones, localize intrusions, and trigger instant alerts.",
+      highlights: [
+        "Added live bounding-box visualization with confidence scoring for operator review.",
+        "Shipped a globally accessible web interface for multi-site monitoring."
+      ],
+      tags: ["Python", "YOLOv8", "OpenCV", "Django", "Computer Vision"],
+      links: [
+        { label: "View Code", url: "https://github.com/sahilahuja14/Drone-Detect-app.git" },
+      ],
     },
     {
-      title: "Interview Creation Portal",
-      desc: "A web-based platform that allows users to create, manage, and take technical interviews with coding challenges and real-time code execution features.",
-      tags: ["React", "HTML5", "CSS3", "PostgeSQL"],
-      image: "/assets/int.png",
-      codeUrl: "https://github.com/sahilahuja14/interview-portal.git",
+      title: "Global Duty & FTA Trade Intelligence Pipeline",
+      period: "2026",
+      desc: "RAG-driven trade data platform for structured customs duty, tariff, FTA, PTA, CEPA, CECA, and MFN rate lookups.",
+      highlights: [
+        "Designed lookups across 45,000+ HS/tariff codes spanning multiple countries.",
+        "Automated ETL for 25+ heterogeneous customs sources into API-ready datasets."
+      ],
+      tags: ["Python", "RAG/LLM", "Playwright", "ETL", "Vector DB"],
+      links: [
+        { label: "View Code", url: "https://github.com/sahilahuja14/global-duty-fta-rag" },
+      ],
     },
   ];
 
   return (
-    <section id="projects" className="py-24 bg-[#030014]">
-      <div ref={ref} className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0 animate-slide-up' : 'opacity-0 translate-y-20'}`}>
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Featured Projects</h2>
-          <p className="text-slate-400">A selection of my recent work and personal projects</p>
+    <section id="projects" className="glass-theme-section py-24">
+      <div ref={ref} className={`max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 relative scroll-reveal ${isVisible ? 'is-visible' : ''}`}>
+
+        {/* Section Title — Glass pill (same as Experience/Skills) */}
+        <div className="flex justify-center mb-16" ref={pillRef}>
+          <div className="projects-title-pill" data-pill-reveal>
+            <span className="projects-title-text">Projects</span>
+          </div>
         </div>
 
-        <div className="grid gap-10">
+        <div className="grid md:grid-cols-2 gap-8" ref={cardContainerRef}>
           {projects.map((project, idx) => (
-            <div key={idx} className="group relative bg-gradient-to-br from-white/5 to-white/10 border border-white/20 rounded-3xl overflow-hidden hover:border-purple-500/50 transition-all duration-300">
-              <div className="flex flex-col lg:flex-row h-full">
-                {/* Image Section */}
-                <div className="lg:w-2/5 relative overflow-hidden h-64 lg:h-auto">
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#0A0F1E] to-transparent z-10 lg:hidden" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0A0F1E] to-transparent z-10 lg:hidden" />
-                  <img 
-                    src={project.image} 
-                    alt={project.title}
-                    className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" 
-                  />
-                  {/* Overlay for large screens */}
-                  <div className="hidden lg:block absolute inset-0 bg-purple-900/20 group-hover:bg-transparent transition-colors duration-300" />
-                </div>
-
-                {/* Content Section */}
-                <div className="lg:w-3/5 p-8 lg:p-12 flex flex-col justify-center">
-                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-4 group-hover:text-purple-400 transition-colors">
-                    {project.title}
-                  </h3>
-                  <p className="text-slate-400 text-lg mb-8 leading-relaxed">
-                    {project.desc}
-                  </p>
-                  
-                  <div className="flex flex-wrap gap-2 mb-8">
-                    {project.tags.map(tag => (
-                      <span key={tag} className="bg-gradient-to-br from-white/5 to-white/10 border border-white/10 px-3 py-1 rounded-full text-sm text-slate-300 font-medium hover:border-purple-500/50 transition-colors">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-
-                  <a href={project.codeUrl} target="_blank" rel="noopener noreferrer" className="flex items-center text-white font-medium hover:text-purple-400 transition-colors w-fit group/btn">
-                    <Github size={20} className="mr-2" />
-                    View Code
-                    <ExternalLink size={16} className="ml-2 opacity-0 -translate-x-2 group-hover/btn:opacity-100 group-hover/btn:translate-x-0 transition-all duration-300" />
-                  </a>
-                </div>
-              </div>
-            </div>
+            <ProjectCard key={idx} project={project} idx={idx} cardDelay={idx * 100} />
           ))}
         </div>
       </div>

@@ -12,6 +12,28 @@ import './App.css';
 const App = () => {
   const [activeSection, setActiveSection] = useState('home');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  
+  // Theme state
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('portfolio-theme') || 'red';
+  });
+
+  const toggleTheme = () => {
+    setTheme(prev => {
+      const newTheme = prev === 'red' ? 'mono' : 'red';
+      localStorage.setItem('portfolio-theme', newTheme);
+      return newTheme;
+    });
+  };
+
+  // Sync theme with HTML tag
+  useEffect(() => {
+    if (theme === 'mono') {
+      document.documentElement.classList.add('theme-mono');
+    } else {
+      document.documentElement.classList.remove('theme-mono');
+    }
+  }, [theme]);
 
   // Handle scroll spy
   useEffect(() => {
@@ -41,20 +63,31 @@ const App = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#020617] text-slate-200 font-sans selection:bg-purple-500/30 selection:text-white">
-      <Navbar 
-        activeSection={activeSection} 
-        scrollToSection={scrollToSection} 
-        isMenuOpen={isMenuOpen} 
-        setIsMenuOpen={setIsMenuOpen} 
-      />
-      <Hero scrollToSection={scrollToSection} />
-      <About />
-      <Experience />
-      <Skills />
-      <Projects />
-      <Contact />
-      <Footer />
+    <div className={`min-h-screen bg-[#050303] text-slate-200 selection:bg-red-500/35 selection:text-white relative isolate ${theme === 'mono' ? 'theme-mono' : ''}`}>
+      {/* GLOBAL SEAMLESS BACKGROUND (Eliminates horizontal section seams) */}
+      <div className="global-canvas-bg" aria-hidden="true" />
+      <div className="global-canvas-bars" aria-hidden="true" />
+      <div className="global-canvas-glow" aria-hidden="true" />
+      <div className="global-canvas-grain" aria-hidden="true" />
+
+      {/* CONTENT (Relative to sit above background) */}
+      <div className="relative">
+        <Navbar
+          activeSection={activeSection}
+          scrollToSection={scrollToSection}
+          isMenuOpen={isMenuOpen}
+          setIsMenuOpen={setIsMenuOpen}
+          theme={theme}
+          toggleTheme={toggleTheme}
+        />
+        <Hero scrollToSection={scrollToSection} />
+        <About />
+        <Experience />
+        <Skills />
+        <Projects />
+        <Contact />
+        <Footer />
+      </div>
     </div>
   );
 };
