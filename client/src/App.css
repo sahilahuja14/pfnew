@@ -69,7 +69,7 @@
 html,
 body {
   background: var(--ink);
-  font-family: "SF Pro Display", "SF Pro Text", "Inter", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "Inter", "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
   overflow-x: hidden;
 }
 
@@ -425,8 +425,10 @@ a {
 .sahil-hero {
   color: var(--white);
   min-height: 100svh;
-  position: relative;
   overflow: hidden;
+  overflow-x: clip;
+  position: relative;
+  width: 100%;
 }
 
 /* Frosted glass vertical bars — the signature background element */
@@ -543,7 +545,7 @@ a {
 
 .hero-typography {
   position: absolute;
-  top: clamp(13.5rem, 25vh, 16.5rem);
+  top: clamp(10rem, 20vh, 13.5rem);
   left: 50%;
   transform: translateX(-50%);
   z-index: 4;
@@ -601,13 +603,14 @@ a {
 }
 
 .hero-build {
-  font-family: "SF Pro Display", -apple-system, sans-serif;
+  font-family: "Playfair Display", -apple-system, sans-serif;
+  font-style: italic;
   font-size: clamp(2rem, 4.5vw, 4.5rem);
   letter-spacing: -4px;
   font-weight: 200;
   left: 50%;
   line-height: 0.99;
-  top: clamp(25.5rem, 43vh, 31.5rem);
+  top: clamp(23rem, 40vh, 29rem);
   transform: translateX(-50%);
   z-index: 20;
   position: absolute;
@@ -658,6 +661,7 @@ a {
   transform: translateX(-60%);
   user-select: none;
   width: auto;
+  /* In front of text block (4) but socials/badges are above (20+) */
   z-index: 10;
 }
 
@@ -1043,6 +1047,7 @@ a {
   flex-direction: column;
   opacity: 0;
   will-change: transform, opacity;
+  /* backdrop-filter runs in its own compositing layer; keep it in keyframes too */
 }
 
 .about-floating-bento:hover {
@@ -2003,6 +2008,14 @@ textarea:-webkit-autofill {
     padding: 1.25rem;
   }
 
+  /* Skills: ensure the cards don't bleed outside the screen */
+  .skills-glass-card {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+
   .project-glass-card,
   .contact-form-card {
     border-radius: 16px;
@@ -2148,8 +2161,11 @@ textarea:-webkit-autofill {
     gap: 0.45rem;
     margin: 0 !important;
     min-height: 2.25rem;
+    /* Force visible immediately on mobile — no scroll-reveal delay */
+    opacity: 1 !important;
     padding: 0.42rem 0.72rem;
     width: auto;
+    will-change: auto;
   }
 
   .about-floating-bento:hover {

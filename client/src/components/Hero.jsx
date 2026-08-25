@@ -16,8 +16,7 @@ const Hero = ({ scrollToSection }) => {
 
       <div
         ref={ref}
-        className={`hero-stage relative mx-auto flex md:min-h-screen w-full max-w-[1440px] items-center justify-center px-4 pt-24 transition-all duration-1000 sm:px-6 lg:px-8 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
-          }`}
+        className="hero-stage relative mx-auto flex w-full max-w-[1440px] items-center justify-center px-4 sm:px-6 lg:px-8"
       >
         <div className="hero-typography">
           <span className="hero-hola">Hola!</span>
