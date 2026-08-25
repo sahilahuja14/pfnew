@@ -615,7 +615,7 @@ a {
   font-weight: 200;
   left: 50%;
   line-height: 0.99;
-  top: clamp(20rem, 34vh, 25.5rem);
+  top: clamp(21rem, 35vh, 26.5rem);
   transform: translateX(-50%);
   z-index: 20;
   position: absolute;
