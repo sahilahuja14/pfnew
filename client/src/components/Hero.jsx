@@ -1,7 +1,6 @@
-import { ChevronDown, Github, Linkedin, Mail, Code2 } from 'lucide-react';
-import sahilPortrait from '../assets/ChatGPT Image Aug 22, 2026, 11_09_31 PM.png';
+import { Github, Linkedin, Mail, Code2 } from 'lucide-react';
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
-import { useState, useEffect } from 'react';
+import sahilPortrait from '../assets/ChatGPT Image Aug 22, 2026, 11_09_31 PM.png';
 
 const heroBadges = [
   { label: 'Data Science', target: 'skills', className: 'hero-badge--science' },
@@ -11,19 +10,6 @@ const heroBadges = [
 
 const Hero = ({ scrollToSection }) => {
   const [ref, isVisible] = useIntersectionObserver();
-  const [scrollProgress, setScrollProgress] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      // 300px of scroll to fully shrink the portrait
-      const progress = Math.min(window.scrollY / 300, 1);
-      setScrollProgress(progress);
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    // Initial call
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   return (
     <section id="home" className="sahil-hero relative md:min-h-screen overflow-hidden">
@@ -40,18 +26,16 @@ const Hero = ({ scrollToSection }) => {
         </div>
         <p className="hero-build"> & I build Intelligence</p>
 
-        <div
-          className="hero-portrait-wrapper"
-          style={{
-            '--is-desktop': 'none', /* just a marker */
-            width: `${240 - (200 * scrollProgress)}px`,
-            height: `${240 - (200 * scrollProgress)}px`
-          }}
-        >
+        <div className="hero-portrait-wrapper">
           <img
             src={sahilPortrait}
             alt="Illustrated portrait of Sahil Ahuja"
             className="hero-portrait"
+            width={1672}
+            height={941}
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
           />
         </div>
 

@@ -30,6 +30,12 @@ export const useElementReveal = ({
 
     if (!elements.length) return;
 
+    const prefersStaticMotion = window.matchMedia('(max-width: 900px), (prefers-reduced-motion: reduce)').matches;
+    if (prefersStaticMotion) {
+      elements.forEach((el) => el.classList.add(inClass));
+      return;
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -38,6 +44,9 @@ export const useElementReveal = ({
               // stagger delay is already set via inline style
             }
             entry.target.classList.add(inClass);
+            if (!bidirectional) {
+              observer.unobserve(entry.target);
+            }
           } else if (bidirectional && entry.target.classList.contains(inClass)) {
             entry.target.classList.remove(inClass);
           }

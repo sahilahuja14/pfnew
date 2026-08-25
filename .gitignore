@@ -20,10 +20,14 @@ build/
 *.swo
 *~
 .DS_Store
-
+portfolio-mobile-perf.patch
 # OS
 Thumbs.db
 .DS_Store
+App.css.rej
+App.jsx.rej
+Hero.jsx.rej
+about.jsx.rej
 
 # Testing
 coverage/

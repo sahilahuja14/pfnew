@@ -2,8 +2,7 @@ import { useEffect, useRef } from 'react';
 
 /**
  * Attaches IntersectionObserver to a container element.
- * Children with data-card-reveal are animated in/out as they
- * enter/leave the viewport, giving the Apple "scroll back" effect.
+ * Children with data-card-reveal are revealed once as they enter.
  *
  * Usage: attach returned ref to the card grid container.
  */
@@ -17,18 +16,18 @@ export const useCardReveal = () => {
     const cards = container.querySelectorAll('[data-card-reveal]');
     if (!cards.length) return;
 
+    const prefersStaticMotion = window.matchMedia('(max-width: 900px), (prefers-reduced-motion: reduce)').matches;
+    if (prefersStaticMotion) {
+      cards.forEach((card) => card.classList.add('card-in'));
+      return;
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             entry.target.classList.add('card-in');
-            entry.target.classList.remove('card-out');
-          } else {
-            // Only animate out if the card was already visible once
-            if (entry.target.classList.contains('card-in')) {
-              entry.target.classList.remove('card-in');
-              entry.target.classList.add('card-out');
-            }
+            observer.unobserve(entry.target);
           }
         });
       },

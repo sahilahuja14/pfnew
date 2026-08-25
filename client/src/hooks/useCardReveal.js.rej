@@ -1,0 +1,28 @@
+diff a/client/src/hooks/useCardReveal.js b/client/src/hooks/useCardReveal.js	(rejected hunks)
+@@ -17,18 +17,19 @@ export const useCardReveal = () => {
+     const cards = container.querySelectorAll('[data-card-reveal]');
+     if (!cards.length) return;
+ 
++    // Previously this toggled card-in/card-out every time a card crossed
++    // the viewport edge in either direction, so scrolling up and down
++    // through a card grid meant continuous transform/opacity animation and
++    // paint work for as long as the user kept scrolling. Industry-standard
++    // pattern here is to reveal once and stop observing: cheaper, and it
++    // avoids re-triggering motion for users who are just re-reading a
++    // section rather than seeing it for the first time.
+     const observer = new IntersectionObserver(
+       (entries) => {
+         entries.forEach((entry) => {
+           if (entry.isIntersecting) {
+             entry.target.classList.add('card-in');
+-            entry.target.classList.remove('card-out');
+-          } else {
+-            // Only animate out if the card was already visible once
+-            if (entry.target.classList.contains('card-in')) {
+-              entry.target.classList.remove('card-in');
+-              entry.target.classList.add('card-out');
+-            }
++            observer.unobserve(entry.target);
+           }
+         });
+       },

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import About from './components/About';
@@ -12,6 +12,7 @@ import './App.css';
 const App = () => {
   const [activeSection, setActiveSection] = useState('home');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const tickingRef = useRef(false);
   
   // Theme state
   const [theme, setTheme] = useState(() => {
@@ -37,19 +38,31 @@ const App = () => {
 
   // Handle scroll spy
   useEffect(() => {
-    const handleScroll = () => {
-      const sections = ['home', 'about', 'experience', 'skills', 'projects', 'contact'];
+    const sections = ['home', 'about', 'experience', 'skills', 'projects', 'contact'];
+
+    const updateActiveSection = () => {
       const scrollPosition = window.scrollY + 100;
 
       for (const section of sections) {
         const element = document.getElementById(section);
         if (element && element.offsetTop <= scrollPosition && (element.offsetTop + element.offsetHeight) > scrollPosition) {
-          setActiveSection(section);
+          setActiveSection((current) => (current === section ? current : section));
+          return;
         }
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    const handleScroll = () => {
+      if (tickingRef.current) return;
+      tickingRef.current = true;
+      requestAnimationFrame(() => {
+        tickingRef.current = false;
+        updateActiveSection();
+      });
+    };
+
+    updateActiveSection();
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 

@@ -21,7 +21,7 @@ const RevealWord = ({ word, progress, isHighlight }) => {
   const opacity = Math.max(0.25, Math.min(1, progress));
   const color = isHighlight
     ? `rgba(255, 207, 138, ${opacity})`
-    : `rgba(255, 255, 255, ${opacity})`;
+    : `rgba(255, 244, 229, ${opacity})`;
   return (
     <span
       className={`about-reveal-word${isHighlight ? ' about-reveal-highlight' : ''}`}
@@ -74,19 +74,37 @@ const About = () => {
   const [ref, isVisible] = useIntersectionObserver();
   const sectionRef = useRef(null);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const tickingRef = useRef(false);
+  const lastProgressRef = useRef(0);
   const pillRef = useElementReveal({ inClass: 'pill-in', selector: '[data-pill-reveal]' });
   const leftDomainRef = useElementReveal({ inClass: 'slide-in-right', selector: '[data-domain-left]', staggerMs: 150 });
   const rightDomainRef = useElementReveal({ inClass: 'slide-in-left', selector: '[data-domain-right]', staggerMs: 150 });
 
   useEffect(() => {
+    const prefersStaticMotion = window.matchMedia('(max-width: 900px), (prefers-reduced-motion: reduce)').matches;
+    if (prefersStaticMotion) {
+      setScrollProgress(1);
+      return;
+    }
+
     const handleScroll = () => {
-      if (!sectionRef.current) return;
-      const rect = sectionRef.current.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-      const totalTravel = rect.height + windowHeight;
-      const traveled = windowHeight - rect.top;
-      const progress = Math.max(0, Math.min(1, traveled / totalTravel));
-      setScrollProgress(progress);
+      if (tickingRef.current) return;
+      tickingRef.current = true;
+
+      requestAnimationFrame(() => {
+        tickingRef.current = false;
+        if (!sectionRef.current) return;
+
+        const rect = sectionRef.current.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+        const totalTravel = rect.height + windowHeight;
+        const traveled = windowHeight - rect.top;
+        const progress = Math.max(0, Math.min(1, traveled / totalTravel));
+
+        if (Math.abs(progress - lastProgressRef.current) < 0.01) return;
+        lastProgressRef.current = progress;
+        setScrollProgress(progress);
+      });
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -162,6 +180,10 @@ const About = () => {
               src={sahilImg}
               alt="Sahil Ahuja"
               className="about-silhouette-image"
+              width={1536}
+              height={1024}
+              loading="lazy"
+              decoding="async"
               style={{
                 float: 'left',
                 shapeOutside: `url("${sahilImg}")`,

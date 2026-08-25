@@ -11,7 +11,8 @@
   --red-500: #ef3127;
   --amber: #efa51b;
   --cream: #fff4e5;
-  --white: #ffffff;
+  --white: #fff4e5;
+  --warm-white-rgb: 255, 244, 229;
 }
 
 /* ── Monochrome Theme Overrides ── */
@@ -19,21 +20,22 @@
   /* Darken the deep backgrounds */
   --ink: #070707;
   --charcoal: #121212;
-  
+
   /* Convert all red glass/glows to sleek grayscale */
   --red-900: #1a1a1a;
   --red-800: #2a2a2a;
   --red-700: #3a3a3a;
   --red-600: #555555;
-  
+
   /* Keep a subtle crimson accent for tiny interactive highlights (e.g. active dots) */
   --red-500: #c22727;
-  
+
   /* Desaturate ambers to whites/light greys */
   --amber: #cccccc;
-  
+
   /* Main text gets a 2% red tint for stylish warmth */
-  --white: #fffafa;
+  --white: #fff0dd;
+  --warm-white-rgb: 255, 240, 221;
 }
 
 /* Override the hardcoded global canvas backgrounds for Monochrome */
@@ -165,11 +167,15 @@ a {
   from {
     opacity: 0;
     transform: translateY(48px) scale(0.96);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
 
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
 }
 
@@ -177,11 +183,15 @@ a {
   from {
     opacity: 1;
     transform: translateY(0) scale(1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
 
   to {
     opacity: 0;
     transform: translateY(48px) scale(0.96);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
 }
 
@@ -191,12 +201,16 @@ a {
     opacity: 0;
     transform: translateY(-14px) scale(0.97);
     filter: blur(4px);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
 
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
     filter: blur(0);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
 }
 
@@ -384,8 +398,6 @@ a {
       rgba(255, 255, 255, 0.04) 0.25%,
       rgba(255, 255, 255, 0.01) 6.9%,
       rgba(255, 255, 255, 0.08) 7.14%);
-  backdrop-filter: blur(3px) saturate(110%);
-  -webkit-backdrop-filter: blur(3px) saturate(110%);
 }
 
 .global-canvas-glow {
@@ -438,8 +450,6 @@ a {
       rgba(255, 255, 255, 0.04) 0.25%,
       rgba(255, 255, 255, 0.01) 6.9%,
       rgba(255, 255, 255, 0.08) 7.14%);
-  backdrop-filter: blur(3px) saturate(110%);
-  -webkit-backdrop-filter: blur(3px) saturate(110%);
   z-index: 1;
 }
 
@@ -533,7 +543,7 @@ a {
 
 .hero-typography {
   position: absolute;
-  top: clamp(15rem, 28vh, 18rem);
+  top: clamp(13.5rem, 25vh, 16.5rem);
   left: 50%;
   transform: translateX(-50%);
   z-index: 4;
@@ -560,7 +570,7 @@ a {
   font-family: "SF Pro Display", "Inter", -apple-system, sans-serif;
   font-weight: 600;
   letter-spacing: -1px;
-  line-height: 0.92;
+  line-height: 0.99;
   margin: 0;
   position: absolute;
   text-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
@@ -568,11 +578,12 @@ a {
 }
 
 .hero-hola {
-  font-family: "Inter", "SF Pro Display", -apple-system, sans-serif;
+  font-family: "Playfair Display";
+  font-style: italic;
   font-size: 3rem;
-  font-weight: 600;
+  font-weight: 550;
   left: 50%;
-  letter-spacing: -3.5px;
+  letter-spacing: -2.5px;
   top: -3rem;
   transform: translateX(-50%);
   position: absolute;
@@ -592,11 +603,11 @@ a {
 .hero-build {
   font-family: "SF Pro Display", -apple-system, sans-serif;
   font-size: clamp(2rem, 4.5vw, 4.5rem);
-  letter-spacing: -4.5px;
+  letter-spacing: -4px;
   font-weight: 200;
   left: 50%;
-  line-height: 0.95;
-  top: clamp(25rem, 47vh, 34rem);
+  line-height: 0.99;
+  top: clamp(25.5rem, 43vh, 31.5rem);
   transform: translateX(-50%);
   z-index: 20;
   position: absolute;
@@ -636,7 +647,7 @@ a {
 }
 
 .hero-portrait {
-  animation: portraitFloat 9s ease-in-out infinite;
+  animation: none;
   bottom: clamp(-8rem, -10vh, -4rem);
   height: clamp(40rem, 75vh, 55rem);
   left: 50%;
@@ -763,28 +774,24 @@ a {
 /* Navigation */
 .portfolio-nav {
   top: 3.75rem;
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 300ms ease, transform 300ms ease;
-  will-change: opacity, transform;
+  margin-top: 0;
+  transition: margin-top 400ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .portfolio-nav--visible {
-  opacity: 1;
   pointer-events: auto;
-  transform: translateY(0);
+  margin-top: 0;
 }
 
 .portfolio-nav--hidden {
-  opacity: 0;
   pointer-events: none;
-  transform: translateY(calc(-100% - 5rem));
+  margin-top: -10rem;
 }
 
 .nav-glass-shell {
   background: transparent;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   border: 1px dashed rgba(255, 255, 255, 0.5);
   border-radius: 999px;
   box-shadow: none;
@@ -1022,6 +1029,7 @@ a {
     text-align: left;
   }
 }
+
 /* ── About Floating Bentos ── */
 .about-floating-bento {
   background: transparent;
@@ -1066,17 +1074,41 @@ a {
 .slide-in-right {
   animation: slideInRightAnim 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
+
 .slide-in-left {
   animation: slideInLeftAnim 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
 @keyframes slideInRightAnim {
-  from { opacity: 0; transform: translateX(-40px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
 }
+
 @keyframes slideInLeftAnim {
-  from { opacity: 0; transform: translateX(40px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
 }
 
 /* ── Experience Section ── */
@@ -1836,9 +1868,11 @@ textarea:-webkit-autofill {
 
   .hero-stage {
     flex-direction: column;
-    gap: 1rem;
-    padding-top: 5rem;
-    padding-bottom: 3rem;
+    gap: 0.5rem;
+    opacity: 1 !important;
+    padding-top: 5.5rem;
+    padding-bottom: 2rem;
+    transform: none !important;
     min-height: auto;
     height: auto;
   }
@@ -1881,10 +1915,10 @@ textarea:-webkit-autofill {
   }
 
   .hero-build {
-    font-size: clamp(1.4rem, 5vw, 2rem);
+    font-size: clamp(1.2rem, 5vw, 2rem);
     letter-spacing: -0.02em;
     text-align: center;
-    margin-top: -0.75rem;
+    margin-top: -0.50rem;
     /* Less aggressive negative margin to prevent overlap */
   }
 
@@ -1893,10 +1927,12 @@ textarea:-webkit-autofill {
     /* Flex to center the image inside the frame */
     justify-content: center;
     align-items: center;
-    position: sticky;
-    top: 1rem;
-    z-index: 50;
-    margin: 0 auto;
+    height: clamp(8rem, 50vw, 10rem);
+    position: relative;
+    top: auto;
+    width: clamp(8rem, 50vw, 10rem);
+    z-index: 15;
+    margin: 1rem auto;
     border-radius: 50%;
 
     /* Frosted glass styles */
@@ -1904,7 +1940,6 @@ textarea:-webkit-autofill {
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
     border: 1px dashed rgba(255, 255, 255, 0.45);
-    /* We let inline style handle the width/height to sync with scroll */
   }
 
   .hero-portrait {
@@ -1999,7 +2034,7 @@ textarea:-webkit-autofill {
     font-size: 2.35rem;
   }
 
-  .project-card-meta > span:last-child {
+  .project-card-meta>span:last-child {
     font-size: 0.74rem !important;
   }
 
@@ -2019,7 +2054,7 @@ textarea:-webkit-autofill {
     margin-bottom: 0.4rem;
   }
 
-  .project-highlight-list > :not([hidden]) ~ :not([hidden]) {
+  .project-highlight-list> :not([hidden])~ :not([hidden]) {
     margin-top: 0.35rem !important;
   }
 
@@ -2060,9 +2095,13 @@ textarea:-webkit-autofill {
 
   .skills-tech-grid {
     display: grid;
-    gap: 0.55rem !important;
-    grid-template-columns: repeat(auto-fit, minmax(3.05rem, 1fr)) !important;
+    gap: 0.52rem !important;
+    grid-template-columns: repeat(auto-fit, minmax(2.65rem, 2.85rem)) !important;
     justify-items: center;
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
   }
 
   .skills-tech-tile {
@@ -2070,7 +2109,7 @@ textarea:-webkit-autofill {
     border-radius: 999px;
     min-height: 0;
     padding: 0;
-    width: min(3.3rem, 100%);
+    width: 2.85rem;
   }
 
   .skills-tech-tile:hover {
@@ -2079,13 +2118,13 @@ textarea:-webkit-autofill {
 
   .skills-tech-icon {
     display: flex;
-    font-size: 1.45rem !important;
+    font-size: 1.3rem !important;
     line-height: 1;
   }
 
   .skills-tech-icon svg {
-    height: 1.45rem;
-    width: 1.45rem;
+    height: 1.3rem;
+    width: 1.3rem;
   }
 
   .skills-tech-name {
@@ -2202,7 +2241,7 @@ textarea:-webkit-autofill {
     margin-bottom: 0.5rem;
   }
 
-  .contact-info-pill-list > :not([hidden]) ~ :not([hidden]) {
+  .contact-info-pill-list> :not([hidden])~ :not([hidden]) {
     margin-bottom: 0 !important;
     margin-top: 0 !important;
   }
@@ -2249,7 +2288,7 @@ textarea:-webkit-autofill {
     margin-top: 1rem;
   }
 
-  .contact-form > :not([hidden]) ~ :not([hidden]) {
+  .contact-form> :not([hidden])~ :not([hidden]) {
     margin-bottom: 0 !important;
     margin-top: 0.75rem !important;
   }
