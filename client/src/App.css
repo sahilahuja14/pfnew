@@ -576,7 +576,7 @@ a {
   top: -3rem;
   transform: translateX(-50%);
   position: absolute;
-  z-index: 6;
+  z-index: 22;
 }
 
 .hero-iam {
@@ -586,7 +586,7 @@ a {
   letter-spacing: -3.5px;
   top: 0.6rem;
   position: absolute;
-  z-index: 6;
+  z-index: 22;
 }
 
 .hero-build {
@@ -763,6 +763,22 @@ a {
 /* Navigation */
 .portfolio-nav {
   top: 3.75rem;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms ease, transform 300ms ease;
+  will-change: opacity, transform;
+}
+
+.portfolio-nav--visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.portfolio-nav--hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(calc(-100% - 5rem));
 }
 
 .nav-glass-shell {

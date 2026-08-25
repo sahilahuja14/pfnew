@@ -1,45 +1,40 @@
 import { Menu, X, Moon, Sun } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const navItems = ['About', 'Skills', 'Experience', 'Contact'];
 
 const Navbar = ({ activeSection, scrollToSection, isMenuOpen, setIsMenuOpen, theme, toggleTheme }) => {
   const [isVisible, setIsVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const lastScrollYRef = useRef(0);
 
   useEffect(() => {
-    let scrollTimeout;
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
+      const lastScrollY = lastScrollYRef.current;
 
-      if (currentScrollY < lastScrollY || currentScrollY < 50) {
-        // Show if scrolling up or at the very top
+      if (currentScrollY < 50 || currentScrollY < lastScrollY) {
         setIsVisible(true);
-      } else if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        // Hide if scrolling down past a small threshold
+      } else if (currentScrollY > lastScrollY + 6) {
         setIsVisible(false);
-        setIsMenuOpen(false); // Close mobile menu if it was open
+        setIsMenuOpen(false);
       }
 
-      setLastScrollY(currentScrollY);
-
-      // Show navbar automatically when scrolling stops for 800ms
-      clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(() => {
-        setIsVisible(true);
-      }, 80);
+      lastScrollYRef.current = currentScrollY;
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      clearTimeout(scrollTimeout);
-    };
-  }, [lastScrollY, setIsMenuOpen]);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [setIsMenuOpen]);
+
+  useEffect(() => {
+    if (isMenuOpen) {
+      setIsVisible(true);
+    }
+  }, [isMenuOpen]);
 
   return (
     <nav
-      className={`portfolio-nav fixed left-0 right-0 z-50 transition-transform duration-300 ease-in-out ${isVisible ? 'translate-y-0' : '-translate-y-[150%]'
+      className={`portfolio-nav fixed left-0 right-0 z-50 ${isVisible ? 'portfolio-nav--visible' : 'portfolio-nav--hidden'
         }`}
     >
       <div className="mx-auto flex w-full max-w-[872px] items-center justify-center px-4 gap-3">
