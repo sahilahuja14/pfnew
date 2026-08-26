@@ -2019,12 +2019,14 @@ textarea:-webkit-autofill {
     margin-right: 0 !important;
     width: 100% !important;
     box-sizing: border-box;
+    min-width: 0;
   }
 
   .project-glass-card,
   .contact-form-card {
     border-radius: 16px;
     padding: 1rem;
+    min-width: 0;
   }
 
   /* Specific typography reductions */
@@ -2114,7 +2116,7 @@ textarea:-webkit-autofill {
   .skills-tech-grid {
     display: grid;
     gap: 0.52rem !important;
-    grid-template-columns: repeat(auto-fit, minmax(2.65rem, 2.85rem)) !important;
+    grid-template-columns: repeat(auto-fit, minmax(2.85rem, 1fr)) !important;
     justify-items: center;
     justify-content: center;
     margin-left: auto;
@@ -2128,6 +2130,7 @@ textarea:-webkit-autofill {
     min-height: 0;
     padding: 0;
     width: 2.85rem;
+    max-width: 100%;
   }
 
   .skills-tech-tile:hover {

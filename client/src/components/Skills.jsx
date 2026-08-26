@@ -75,7 +75,7 @@ const Skills = () => {
               <span className="skills-heading-dot" />
               Coding Profiles
             </h3>
-            <div className="flex flex-row justify-between md:flex-col gap-4 md:gap-0 md:space-y-3" ref={profilesRef}>
+            <div className="flex flex-row flex-wrap justify-between md:flex-col gap-3 sm:gap-4 md:gap-0 md:space-y-3" ref={profilesRef}>
               {profiles.map((profile, idx) => (
                 <a
                   key={profile.name}
