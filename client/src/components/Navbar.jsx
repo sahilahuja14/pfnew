@@ -6,20 +6,32 @@ const navItems = ['About', 'Skills', 'Experience', 'Contact'];
 const Navbar = ({ activeSection, scrollToSection, isMenuOpen, setIsMenuOpen, theme, toggleTheme }) => {
   const [isVisible, setIsVisible] = useState(true);
   const lastScrollYRef = useRef(0);
+  const tickingRef = useRef(false);
 
   useEffect(() => {
+    // rAF-throttled for the same reason as the other scroll listeners on
+    // this page: this one is worse than most to leave unthrottled, because
+    // every state flip re-triggers a CSS transition on a position:fixed,
+    // backdrop-filter: blur(18px) pill — forcing the browser to recomposite
+    // that blur across the full viewport on every hide/show, and with a
+    // 6px threshold that could happen many times per second while scrolling.
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      const lastScrollY = lastScrollYRef.current;
+      if (tickingRef.current) return;
+      tickingRef.current = true;
+      requestAnimationFrame(() => {
+        tickingRef.current = false;
+        const currentScrollY = window.scrollY;
+        const lastScrollY = lastScrollYRef.current;
 
-      if (currentScrollY < 50 || currentScrollY < lastScrollY) {
-        setIsVisible(true);
-      } else if (currentScrollY > lastScrollY + 6) {
-        setIsVisible(false);
-        setIsMenuOpen(false);
-      }
+        if (currentScrollY < 50 || currentScrollY < lastScrollY) {
+          setIsVisible(true);
+        } else if (currentScrollY > lastScrollY + 6) {
+          setIsVisible(false);
+          setIsMenuOpen(false);
+        }
 
-      lastScrollYRef.current = currentScrollY;
+        lastScrollYRef.current = currentScrollY;
+      });
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
