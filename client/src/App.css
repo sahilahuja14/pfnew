@@ -550,7 +550,7 @@ a {
 
 .hero-typography {
   position: absolute;
-  top: clamp(10rem, 20vh, 13.5rem);
+  top: clamp(10rem, 20%, 13.5rem);
   left: 50%;
   transform: translateX(-50%);
   z-index: 4;
@@ -615,7 +615,7 @@ a {
   font-weight: 200;
   left: 50%;
   line-height: 0.99;
-  top: clamp(21rem, 35vh, 26.5rem);
+  top: clamp(21rem, 35%, 26.5rem);
   transform: translateX(-50%);
   z-index: 20;
   position: absolute;
@@ -656,10 +656,10 @@ a {
 
 .hero-portrait {
   animation: none;
-  bottom: clamp(-8rem, -10vh, -4rem);
-  height: clamp(34rem, 63vh, 46.5rem);
+  bottom: clamp(-8rem, -10%, -4rem);
+  height: clamp(34rem, 63%, 46.5rem);
   left: 50%;
-  max-height: 85vh;
+  max-height: 85%;
   object-fit: contain;
   pointer-events: none;
   position: absolute;
@@ -688,7 +688,7 @@ a {
     0 12px 28px rgba(80, 4, 5, 0.22);
   height: 2rem;
   position: absolute;
-  top: clamp(15rem, 24.2vh, 15.8rem);
+  top: clamp(15rem, 24.2%, 15.8rem);
   width: 2rem;
   z-index: 6;
 }
@@ -739,17 +739,17 @@ a {
 
 .hero-badge--science {
   left: clamp(1rem, 10vw, 9rem);
-  top: clamp(28rem, 64.2vh, 41.2rem);
+  top: clamp(28rem, 64.2%, 41.2rem);
 }
 
 .hero-badge--ml {
-  bottom: clamp(5.7rem, 9.8vh, 6.35rem);
+  bottom: clamp(5.7rem, 9.8%, 6.35rem);
   left: clamp(1rem, 13.4vw, 12rem);
 }
 
 .hero-badge--analytics {
   right: clamp(1rem, 18.6vw, 16.75rem);
-  top: clamp(32.5rem, 73.3vh, 47rem);
+  top: clamp(32.5rem, 73.3%, 47rem);
 }
 
 /* ── Scroll cue ── */
