@@ -61,12 +61,10 @@
     radial-gradient(ellipse 40% 60% at 10% 60%, rgba(255, 255, 255, 0.05), transparent 60%);
 }
 
-/* .theme-mono .global-canvas-bars intentionally has no backdrop-filter:
-   this is a position:fixed, inset:0 layer covering the entire viewport,
-   so any blur/saturate on it gets recomposited by the GPU on every scroll
-   frame across the whole page. It only ever sits over flat gradients, so
-   there is nothing worth blurring underneath it — this was re-added at
-   some point and is one of the bigger sources of scroll jank on mobile. */
+.theme-mono .global-canvas-bars {
+  backdrop-filter: blur(4px) saturate(0%);
+  -webkit-backdrop-filter: blur(4px) saturate(0%);
+}
 
 html,
 body {
@@ -258,13 +256,7 @@ a {
 [data-card-reveal] {
   opacity: 0;
   transform: translateY(48px) scale(0.96);
-  /* will-change removed: this rule matches every project/skill/experience
-     card on the page, so it was telling the browser to keep a dedicated
-     GPU layer ready for ALL of them simultaneously, for the entire time
-     they sit off-screen waiting to be revealed — not just during their
-     one-time 0.55s reveal animation. Modern browsers already promote an
-     element to its own layer automatically once its animation starts,
-     so the hint here was pure overhead with no upside. */
+  will-change: opacity, transform;
 }
 
 [data-card-reveal].card-in {
@@ -1025,11 +1017,7 @@ a {
 
 .about-reveal-word {
   display: inline;
-  /* will-change: color removed — applied to every one of the ~80-90 word
-     spans in this section permanently, for a transition most browsers
-     don't even layer-promote for. Harmless individually, but it's
-     unnecessary style-engine overhead multiplied by every word on the
-     page for no measurable benefit. */
+  will-change: color;
 }
 
 .about-reveal-highlight {
@@ -1063,14 +1051,8 @@ a {
   display: flex;
   flex-direction: column;
   opacity: 0;
-  /* will-change removed: it was set permanently here, which keeps the
-     browser holding a separate GPU-composited layer alive for every one
-     of these cards for the entire life of the page, not just the ~0.8s
-     they're actually animating in. will-change is a hint for an upcoming
-     change, not a general "make this fast" switch — leaving it on
-     indefinitely spends GPU memory/compositing budget for no benefit
-     once the reveal animation is done. The .slide-in-left/-right
-     animation classes below add it only while the animation runs. */
+  will-change: transform, opacity;
+  /* backdrop-filter runs in its own compositing layer; keep it in keyframes too */
 }
 
 .about-floating-bento:hover {

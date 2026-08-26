@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
 import { useElementReveal } from '../hooks/useElementReveal';
 import { Brain, Database, BarChart3, Trophy, Globe } from 'lucide-react';
-import sahilImg from '../assets/about-silhouette.webp';
+import sahilImg from '../assets/ChatGPT Image Aug 24, 2026, 02_42_17 AM.png';
 
 /* ── Asymmetric Floating Bentos ── */
 const leftBentos = [
@@ -180,8 +180,8 @@ const About = () => {
               src={sahilImg}
               alt="Sahil Ahuja"
               className="about-silhouette-image"
-              width={900}
-              height={600}
+              width={1536}
+              height={1024}
               loading="lazy"
               decoding="async"
               style={{

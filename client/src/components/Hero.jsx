@@ -1,6 +1,6 @@
 import { Github, Linkedin, Mail, Code2 } from 'lucide-react';
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
-import sahilPortrait from '../assets/hero-portrait.webp';
+import sahilPortrait from '../assets/ChatGPT Image Aug 22, 2026, 11_09_31 PM.png';
 
 const heroBadges = [
   { label: 'Data Science', target: 'skills', className: 'hero-badge--science' },
@@ -30,8 +30,8 @@ const Hero = ({ scrollToSection }) => {
             src={sahilPortrait}
             alt="Illustrated portrait of Sahil Ahuja"
             className="hero-portrait"
-            width={480}
-            height={270}
+            width={1672}
+            height={941}
             loading="eager"
             fetchPriority="high"
             decoding="async"
