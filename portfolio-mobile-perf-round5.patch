@@ -1,0 +1,83 @@
+diff --git a/client/src/App.css b/client/src/App.css
+index 3f517a5..9250d87 100644
+--- a/client/src/App.css
++++ b/client/src/App.css
+@@ -256,7 +256,20 @@ a {
+ 
+ /* Base state: invisible until triggered */
+ [data-card-reveal] {
+-  opacity: 0;
++  /* 0.001, not 0: an element sitting at exactly opacity 0 gets its
++     backdrop-filter layer discarded by most browsers as a rendering
++     optimization, since fully-invisible content isn't worth compositing.
++     These cards can sit at opacity 0 for seconds while off-screen waiting
++     for their reveal, so when .card-in finally fires, the browser has to
++     build the blur layer from scratch in the same 0.55s window it's also
++     fading the text in — text paints instantly, blur visibly lags behind
++     while it "catches up". A hair above zero keeps the layer alive and
++     already-composited the whole time it's waiting, so the reveal is just
++     a cheap opacity/transform update on an already-warm layer instead of
++     a cold start. This is the same reason native UI blur (iOS's
++     UIVisualEffectView, for one) never shows this pop-in: the blur layer
++     is always live, only the content on top of it fades. */
++  opacity: 0.001;
+   transform: translateY(48px) scale(0.96);
+   /* will-change removed: this rule matches every project/skill/experience
+      card on the page, so it was telling the browser to keep a dedicated
+@@ -277,7 +290,8 @@ a {
+ 
+ /* Section pill headers — animate in from top */
+ [data-pill-reveal] {
+-  opacity: 0;
++  /* Same reasoning as [data-card-reveal] above — see that comment. */
++  opacity: 0.001;
+ }
+ 
+ [data-pill-reveal].pill-in {
+@@ -286,7 +300,8 @@ a {
+ 
+ /* Skills tech tiles — staggered cascade */
+ [data-tile-reveal] {
+-  opacity: 0;
++  /* Same reasoning as [data-card-reveal] above — see that comment. */
++  opacity: 0.001;
+   transform: translateY(24px) scale(0.95);
+ }
+ 
+@@ -296,7 +311,8 @@ a {
+ 
+ /* Contact info / profile rows — slide in from left */
+ [data-slide-left] {
+-  opacity: 0;
++  /* Same reasoning as [data-card-reveal] above — see that comment. */
++  opacity: 0.001;
+   transform: translateX(-24px);
+ }
+ 
+@@ -352,7 +368,13 @@ a {
+ }
+ 
+ .scroll-reveal {
+-  opacity: 0;
++  /* Same reasoning as [data-card-reveal] further up this file, but this
++     one matters more: it's the outer wrapper for every section's entire
++     content (About, Experience, Skills, Projects, Contact), so every
++     blurred card nested inside inherits the "don't bother compositing"
++     treatment from the browser while this parent sits at opacity 0 —
++     regardless of what each individual card's own opacity says. */
++  opacity: 0.001;
+   transform: translateY(20px);
+   transition: opacity 1s ease-out, transform 1s ease-out;
+ }
+@@ -1062,7 +1084,10 @@ a {
+   transition: border-color 400ms ease, transform 400ms ease;
+   display: flex;
+   flex-direction: column;
+-  opacity: 0;
++  /* opacity 0.001, not 0 — see the [data-card-reveal] comment further up
++     this file. This class carries backdrop-filter directly, so it's one
++     of the more direct examples of the cold-start problem. */
++  opacity: 0.001;
+   /* will-change removed: it was set permanently here, which keeps the
+      browser holding a separate GPU-composited layer alive for every one
+      of these cards for the entire life of the page, not just the ~0.8s

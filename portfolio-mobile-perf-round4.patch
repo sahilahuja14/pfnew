@@ -1,0 +1,64 @@
+diff --git a/client/src/App.css b/client/src/App.css
+index dd6c24f..3f517a5 100644
+--- a/client/src/App.css
++++ b/client/src/App.css
+@@ -2434,4 +2434,16 @@ textarea:-webkit-autofill {
+ #contact {
+   content-visibility: auto;
+   contain-intrinsic-size: auto 900px;
++}
++
++/* Set by the IntersectionObserver in App.jsx once a section is ~600px
++   from entering the viewport. Switching to `visible` cancels the
++   content-visibility skip early, so the section (and its backdrop-filter
++   layers) get composited while still off-screen instead of exactly when
++   you scroll to them. */
++#experience.cv-primed,
++#skills.cv-primed,
++#projects.cv-primed,
++#contact.cv-primed {
++  content-visibility: visible;
+ }
+\ No newline at end of file
+diff --git a/client/src/App.jsx b/client/src/App.jsx
+index c5dcaaf..69b4741 100644
+--- a/client/src/App.jsx
++++ b/client/src/App.jsx
+@@ -75,6 +75,37 @@ const App = () => {
+     }
+   };
+ 
++  // Prime content-visibility sections well BEFORE they're actually
++  // visible, instead of exactly when they cross into the viewport.
++  // content-visibility: auto skips render work for off-screen sections,
++  // which is great for scroll cost, but it also means the browser doesn't
++  // promote each section's backdrop-filter layers to the compositor until
++  // the section is already entering view — so all of that expensive blur
++  // work lands in the same frame the user is looking at it, which reads
++  // as "the blur pops in after the text." rootMargin here means the
++  // observer fires ~600px before a section reaches the viewport, so by
++  // the time you actually scroll to it, the compositor has had a
++  // second or more of off-screen time to finish the blur quietly.
++  useEffect(() => {
++    const sections = document.querySelectorAll('#experience, #skills, #projects, #contact');
++    if (!sections.length) return;
++
++    const observer = new IntersectionObserver(
++      (entries) => {
++        entries.forEach((entry) => {
++          if (entry.isIntersecting) {
++            entry.target.classList.add('cv-primed');
++            observer.unobserve(entry.target);
++          }
++        });
++      },
++      { rootMargin: '600px 0px 600px 0px', threshold: 0 }
++    );
++
++    sections.forEach((section) => observer.observe(section));
++    return () => observer.disconnect();
++  }, []);
++
+   return (
+     <div className={`min-h-screen bg-[#050303] text-slate-200 selection:bg-red-500/35 selection:text-white relative isolate ${theme === 'mono' ? 'theme-mono' : ''}`}>
+       {/* GLOBAL SEAMLESS BACKGROUND (Eliminates horizontal section seams) */}

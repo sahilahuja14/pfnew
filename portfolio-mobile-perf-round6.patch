@@ -1,0 +1,71 @@
+diff --git a/client/src/App.css b/client/src/App.css
+index 9250d87..5a52cc5 100644
+--- a/client/src/App.css
++++ b/client/src/App.css
+@@ -167,7 +167,14 @@ a {
+ 
+ @keyframes cardRevealIn {
+   from {
+-    opacity: 0;
++    /* opacity 0.001, not 0 — the resting-state fix on [data-card-reveal]
++       elsewhere in this file only helps while the element is sitting
++       idle. The instant this animation starts, its own `from` value
++       takes over and snaps opacity back to whatever is written here,
++       re-triggering the same cold-start this file is trying to avoid.
++       Both the resting state AND every reveal-in keyframe's `from` need
++       this fix, or the animation just undoes it. */
++    opacity: 0.001;
+     transform: translateY(48px) scale(0.96);
+     backdrop-filter: blur(var(--glass-blur, 12px));
+     -webkit-backdrop-filter: blur(var(--glass-blur, 12px));
+@@ -200,7 +207,8 @@ a {
+ /* ── Premium additional keyframes ── */
+ @keyframes pillDrop {
+   from {
+-    opacity: 0;
++    /* Same reasoning as cardRevealIn above — see that comment. */
++    opacity: 0.001;
+     transform: translateY(-14px) scale(0.97);
+     filter: blur(4px);
+     backdrop-filter: blur(var(--glass-blur, 12px));
+@@ -218,7 +226,9 @@ a {
+ 
+ @keyframes cascadeUp {
+   from {
+-    opacity: 0;
++    /* Same reasoning as cardRevealIn above — see that comment. Used by
++       the skills tech tiles, which also sit on blurred card surfaces. */
++    opacity: 0.001;
+     transform: translateY(24px) scale(0.95);
+   }
+ 
+@@ -1134,7 +1144,17 @@ a {
+ 
+ @keyframes slideInRightAnim {
+   from {
+-    opacity: 0;
++    /* This is the specific keyframe driving .about-floating-bento's
++       reveal (via .slide-in-right). The resting-state fix on
++       .about-floating-bento itself only matters before this animation
++       starts — the instant .slide-in-right is added, THIS from-value
++       takes over and was snapping opacity back to a hard 0, undoing
++       that fix and re-triggering the cold start. This is why the bentos
++       specifically kept showing the lag even after the resting-state
++       fix, while the navbar (no animation at all) and hero badges
++       (trigger essentially at page load, before there's a scroll
++       interaction to notice a gap in) didn't. */
++    opacity: 0.001;
+     transform: translateX(-40px);
+     backdrop-filter: blur(var(--glass-blur, 12px));
+     -webkit-backdrop-filter: blur(var(--glass-blur, 12px));
+@@ -1150,7 +1170,9 @@ a {
+ 
+ @keyframes slideInLeftAnim {
+   from {
+-    opacity: 0;
++    /* Same reasoning as slideInRightAnim above — this is the other half
++       of the bento reveal (.slide-in-left). */
++    opacity: 0.001;
+     transform: translateX(40px);
+     backdrop-filter: blur(var(--glass-blur, 12px));
+     -webkit-backdrop-filter: blur(var(--glass-blur, 12px));

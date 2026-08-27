@@ -167,7 +167,14 @@ a {
 
 @keyframes cardRevealIn {
   from {
-    opacity: 0;
+    /* opacity 0.001, not 0 — the resting-state fix on [data-card-reveal]
+       elsewhere in this file only helps while the element is sitting
+       idle. The instant this animation starts, its own `from` value
+       takes over and snaps opacity back to whatever is written here,
+       re-triggering the same cold-start this file is trying to avoid.
+       Both the resting state AND every reveal-in keyframe's `from` need
+       this fix, or the animation just undoes it. */
+    opacity: 0.001;
     transform: translateY(48px) scale(0.96);
     backdrop-filter: blur(var(--glass-blur, 12px));
     -webkit-backdrop-filter: blur(var(--glass-blur, 12px));
@@ -200,7 +207,8 @@ a {
 /* ── Premium additional keyframes ── */
 @keyframes pillDrop {
   from {
-    opacity: 0;
+    /* Same reasoning as cardRevealIn above — see that comment. */
+    opacity: 0.001;
     transform: translateY(-14px) scale(0.97);
     filter: blur(4px);
     backdrop-filter: blur(var(--glass-blur, 12px));
@@ -218,7 +226,9 @@ a {
 
 @keyframes cascadeUp {
   from {
-    opacity: 0;
+    /* Same reasoning as cardRevealIn above — see that comment. Used by
+       the skills tech tiles, which also sit on blurred card surfaces. */
+    opacity: 0.001;
     transform: translateY(24px) scale(0.95);
   }
 
@@ -254,54 +264,30 @@ a {
   }
 }
 
-/* Base state: invisible until triggered */
-[data-card-reveal] {
-  opacity: 0;
-  transform: translateY(48px) scale(0.96);
-  /* will-change removed: this rule matches every project/skill/experience
-     card on the page, so it was telling the browser to keep a dedicated
-     GPU layer ready for ALL of them simultaneously, for the entire time
-     they sit off-screen waiting to be revealed — not just during their
-     one-time 0.55s reveal animation. Modern browsers already promote an
-     element to its own layer automatically once its animation starts,
-     so the hint here was pure overhead with no upside. */
-}
-
-[data-card-reveal].card-in {
-  animation: cardRevealIn 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-}
-
-[data-card-reveal].card-out {
-  animation: cardRevealOut 0.4s cubic-bezier(0.55, 0, 1, 0.45) forwards;
-}
-
-/* Section pill headers — animate in from top */
-[data-pill-reveal] {
-  opacity: 0;
-}
-
-[data-pill-reveal].pill-in {
-  animation: pillDrop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
-
-/* Skills tech tiles — staggered cascade */
-[data-tile-reveal] {
-  opacity: 0;
-  transform: translateY(24px) scale(0.95);
-}
-
-[data-tile-reveal].tile-in {
-  animation: cascadeUp 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-}
-
-/* Contact info / profile rows — slide in from left */
+/* Reveal-on-scroll removed for [data-card-reveal], [data-pill-reveal],
+   [data-tile-reveal], and [data-slide-left]: these attributes are still
+   present in the JSX (harmless — an IntersectionObserver still fires and
+   toggles a class), but nothing here reacts to that class anymore, so
+   cards/pills/tiles/rows just render in their normal final state
+   immediately. This was the recurring source of the backdrop-filter
+   pop-in: every version of the fix (warm-keeping opacity, fixing the
+   keyframes' own `from` values) still had SOME animation touching these
+   blurred elements, and each one turned out to have its own edge case.
+   Removing the animation entirely removes the whole category of bug. */
+[data-card-reveal],
+[data-pill-reveal],
+[data-tile-reveal],
 [data-slide-left] {
-  opacity: 0;
-  transform: translateX(-24px);
+  opacity: 1;
+  transform: none;
 }
 
+[data-card-reveal].card-in,
+[data-card-reveal].card-out,
+[data-pill-reveal].pill-in,
+[data-tile-reveal].tile-in,
 [data-slide-left].slide-in {
-  animation: slideInLeft 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  animation: none;
 }
 
 /* ── Universal premium hover lift ── */
@@ -352,9 +338,12 @@ a {
 }
 
 .scroll-reveal {
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 1s ease-out, transform 1s ease-out;
+  /* Reveal-on-scroll removed entirely — content just renders in its
+     final state from the start. No opacity/transform transition means
+     nothing here ever triggers a backdrop-filter layer to be built or
+     rebuilt on scroll, which was the root of the recurring blur pop-in. */
+  opacity: 1;
+  transform: none;
 }
 
 .scroll-reveal.is-visible {
@@ -1062,15 +1051,11 @@ a {
   transition: border-color 400ms ease, transform 400ms ease;
   display: flex;
   flex-direction: column;
-  opacity: 0;
-  /* will-change removed: it was set permanently here, which keeps the
-     browser holding a separate GPU-composited layer alive for every one
-     of these cards for the entire life of the page, not just the ~0.8s
-     they're actually animating in. will-change is a hint for an upcoming
-     change, not a general "make this fast" switch — leaving it on
-     indefinitely spends GPU memory/compositing budget for no benefit
-     once the reveal animation is done. The .slide-in-left/-right
-     animation classes below add it only while the animation runs. */
+  /* Reveal-on-scroll removed — see the block comment above
+     [data-card-reveal] earlier in this file for the full reasoning.
+     Renders visible immediately; .slide-in-right/-left below are now
+     no-ops. */
+  opacity: 1;
 }
 
 .about-floating-bento:hover {
@@ -1099,17 +1084,28 @@ a {
 }
 
 /* Animations for left/right sync */
-.slide-in-right {
-  animation: slideInRightAnim 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-}
-
+.slide-in-right,
 .slide-in-left {
-  animation: slideInLeftAnim 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  /* Reveal-on-scroll removed — see [data-card-reveal] comment for the
+     full reasoning. These classes still get added by useElementReveal,
+     but no longer do anything, so the bentos never re-trigger a
+     backdrop-filter layer rebuild. */
+  animation: none;
 }
 
 @keyframes slideInRightAnim {
   from {
-    opacity: 0;
+    /* This is the specific keyframe driving .about-floating-bento's
+       reveal (via .slide-in-right). The resting-state fix on
+       .about-floating-bento itself only matters before this animation
+       starts — the instant .slide-in-right is added, THIS from-value
+       takes over and was snapping opacity back to a hard 0, undoing
+       that fix and re-triggering the cold start. This is why the bentos
+       specifically kept showing the lag even after the resting-state
+       fix, while the navbar (no animation at all) and hero badges
+       (trigger essentially at page load, before there's a scroll
+       interaction to notice a gap in) didn't. */
+    opacity: 0.001;
     transform: translateX(-40px);
     backdrop-filter: blur(var(--glass-blur, 12px));
     -webkit-backdrop-filter: blur(var(--glass-blur, 12px));
@@ -1125,7 +1121,9 @@ a {
 
 @keyframes slideInLeftAnim {
   from {
-    opacity: 0;
+    /* Same reasoning as slideInRightAnim above — this is the other half
+       of the bento reveal (.slide-in-left). */
+    opacity: 0.001;
     transform: translateX(40px);
     backdrop-filter: blur(var(--glass-blur, 12px));
     -webkit-backdrop-filter: blur(var(--glass-blur, 12px));
@@ -2434,4 +2432,16 @@ textarea:-webkit-autofill {
 #contact {
   content-visibility: auto;
   contain-intrinsic-size: auto 900px;
+}
+
+/* Set by the IntersectionObserver in App.jsx once a section is ~600px
+   from entering the viewport. Switching to `visible` cancels the
+   content-visibility skip early, so the section (and its backdrop-filter
+   layers) get composited while still off-screen instead of exactly when
+   you scroll to them. */
+#experience.cv-primed,
+#skills.cv-primed,
+#projects.cv-primed,
+#contact.cv-primed {
+  content-visibility: visible;
 }

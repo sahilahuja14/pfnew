@@ -13,7 +13,7 @@ const App = () => {
   const [activeSection, setActiveSection] = useState('home');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const tickingRef = useRef(false);
-  
+
   // Theme state
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('portfolio-theme') || 'red';
@@ -74,6 +74,37 @@ const App = () => {
       setIsMenuOpen(false);
     }
   };
+
+  // Prime content-visibility sections well BEFORE they're actually
+  // visible, instead of exactly when they cross into the viewport.
+  // content-visibility: auto skips render work for off-screen sections,
+  // which is great for scroll cost, but it also means the browser doesn't
+  // promote each section's backdrop-filter layers to the compositor until
+  // the section is already entering view — so all of that expensive blur
+  // work lands in the same frame the user is looking at it, which reads
+  // as "the blur pops in after the text." rootMargin here means the
+  // observer fires ~600px before a section reaches the viewport, so by
+  // the time you actually scroll to it, the compositor has had a
+  // second or more of off-screen time to finish the blur quietly.
+  useEffect(() => {
+    const sections = document.querySelectorAll('#experience, #skills, #projects, #contact');
+    if (!sections.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('cv-primed');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { rootMargin: '600px 0px 600px 0px', threshold: 0 }
+    );
+
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <div className={`min-h-screen bg-[#050303] text-slate-200 selection:bg-red-500/35 selection:text-white relative isolate ${theme === 'mono' ? 'theme-mono' : ''}`}>
