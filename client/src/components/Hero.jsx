@@ -1,6 +1,6 @@
 import { Github, Linkedin, Mail, Code2 } from 'lucide-react';
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
-import sahilPortrait from '../assets/ChatGPT Image Aug 22, 2026, 11_09_31 PM.png';
+import sahilPortrait from '../assets/hero-portrait.webp';
 
 const heroBadges = [
   { label: 'Data Science', target: 'skills', className: 'hero-badge--science' },

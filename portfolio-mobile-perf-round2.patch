@@ -1,0 +1,159 @@
+diff --git a/client/src/App.css b/client/src/App.css
+index 837e2a0..b2ab07c 100644
+--- a/client/src/App.css
++++ b/client/src/App.css
+@@ -61,10 +61,12 @@
+     radial-gradient(ellipse 40% 60% at 10% 60%, rgba(255, 255, 255, 0.05), transparent 60%);
+ }
+ 
+-.theme-mono .global-canvas-bars {
+-  backdrop-filter: blur(4px) saturate(0%);
+-  -webkit-backdrop-filter: blur(4px) saturate(0%);
+-}
++/* .theme-mono .global-canvas-bars intentionally has no backdrop-filter:
++   this is a position:fixed, inset:0 layer covering the entire viewport,
++   so any blur/saturate on it gets recomposited by the GPU on every scroll
++   frame across the whole page. It only ever sits over flat gradients, so
++   there is nothing worth blurring underneath it — this was re-added at
++   some point and is one of the bigger sources of scroll jank on mobile. */
+ 
+ html,
+ body {
+@@ -256,7 +258,13 @@ a {
+ [data-card-reveal] {
+   opacity: 0;
+   transform: translateY(48px) scale(0.96);
+-  will-change: opacity, transform;
++  /* will-change removed: this rule matches every project/skill/experience
++     card on the page, so it was telling the browser to keep a dedicated
++     GPU layer ready for ALL of them simultaneously, for the entire time
++     they sit off-screen waiting to be revealed — not just during their
++     one-time 0.55s reveal animation. Modern browsers already promote an
++     element to its own layer automatically once its animation starts,
++     so the hint here was pure overhead with no upside. */
+ }
+ 
+ [data-card-reveal].card-in {
+@@ -1017,7 +1025,11 @@ a {
+ 
+ .about-reveal-word {
+   display: inline;
+-  will-change: color;
++  /* will-change: color removed — applied to every one of the ~80-90 word
++     spans in this section permanently, for a transition most browsers
++     don't even layer-promote for. Harmless individually, but it's
++     unnecessary style-engine overhead multiplied by every word on the
++     page for no measurable benefit. */
+ }
+ 
+ .about-reveal-highlight {
+@@ -1051,8 +1063,14 @@ a {
+   display: flex;
+   flex-direction: column;
+   opacity: 0;
+-  will-change: transform, opacity;
+-  /* backdrop-filter runs in its own compositing layer; keep it in keyframes too */
++  /* will-change removed: it was set permanently here, which keeps the
++     browser holding a separate GPU-composited layer alive for every one
++     of these cards for the entire life of the page, not just the ~0.8s
++     they're actually animating in. will-change is a hint for an upcoming
++     change, not a general "make this fast" switch — leaving it on
++     indefinitely spends GPU memory/compositing budget for no benefit
++     once the reveal animation is done. The .slide-in-left/-right
++     animation classes below add it only while the animation runs. */
+ }
+ 
+ .about-floating-bento:hover {
+diff --git a/client/src/components/Hero.jsx b/client/src/components/Hero.jsx
+index 1064d57..a3a638a 100644
+--- a/client/src/components/Hero.jsx
++++ b/client/src/components/Hero.jsx
+@@ -1,6 +1,6 @@
+ import { Github, Linkedin, Mail, Code2 } from 'lucide-react';
+ import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
+-import sahilPortrait from '../assets/ChatGPT Image Aug 22, 2026, 11_09_31 PM.png';
++import sahilPortrait from '../assets/hero-portrait.webp';
+ 
+ const heroBadges = [
+   { label: 'Data Science', target: 'skills', className: 'hero-badge--science' },
+@@ -30,8 +30,8 @@ const Hero = ({ scrollToSection }) => {
+             src={sahilPortrait}
+             alt="Illustrated portrait of Sahil Ahuja"
+             className="hero-portrait"
+-            width={1672}
+-            height={941}
++            width={480}
++            height={270}
+             loading="eager"
+             fetchPriority="high"
+             decoding="async"
+diff --git a/client/src/components/About.jsx b/client/src/components/About.jsx
+index fc803af..5b212a2 100644
+--- a/client/src/components/About.jsx
++++ b/client/src/components/About.jsx
+@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
+ import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
+ import { useElementReveal } from '../hooks/useElementReveal';
+ import { Brain, Database, BarChart3, Trophy, Globe } from 'lucide-react';
+-import sahilImg from '../assets/ChatGPT Image Aug 24, 2026, 02_42_17 AM.png';
++import sahilImg from '../assets/about-silhouette.webp';
+ 
+ /* ── Asymmetric Floating Bentos ── */
+ const leftBentos = [
+@@ -180,8 +180,8 @@ const About = () => {
+               src={sahilImg}
+               alt="Sahil Ahuja"
+               className="about-silhouette-image"
+-              width={1536}
+-              height={1024}
++              width={900}
++              height={600}
+               loading="lazy"
+               decoding="async"
+               style={{
+diff --git a/client/src/components/Navbar.jsx b/client/src/components/Navbar.jsx
+index 666f2eb..c8daac6 100644
+--- a/client/src/components/Navbar.jsx
++++ b/client/src/components/Navbar.jsx
+@@ -6,20 +6,32 @@ const navItems = ['About', 'Skills', 'Experience', 'Contact'];
+ const Navbar = ({ activeSection, scrollToSection, isMenuOpen, setIsMenuOpen, theme, toggleTheme }) => {
+   const [isVisible, setIsVisible] = useState(true);
+   const lastScrollYRef = useRef(0);
++  const tickingRef = useRef(false);
+ 
+   useEffect(() => {
++    // rAF-throttled for the same reason as the other scroll listeners on
++    // this page: this one is worse than most to leave unthrottled, because
++    // every state flip re-triggers a CSS transition on a position:fixed,
++    // backdrop-filter: blur(18px) pill — forcing the browser to recomposite
++    // that blur across the full viewport on every hide/show, and with a
++    // 6px threshold that could happen many times per second while scrolling.
+     const handleScroll = () => {
+-      const currentScrollY = window.scrollY;
+-      const lastScrollY = lastScrollYRef.current;
++      if (tickingRef.current) return;
++      tickingRef.current = true;
++      requestAnimationFrame(() => {
++        tickingRef.current = false;
++        const currentScrollY = window.scrollY;
++        const lastScrollY = lastScrollYRef.current;
+ 
+-      if (currentScrollY < 50 || currentScrollY < lastScrollY) {
+-        setIsVisible(true);
+-      } else if (currentScrollY > lastScrollY + 6) {
+-        setIsVisible(false);
+-        setIsMenuOpen(false);
+-      }
++        if (currentScrollY < 50 || currentScrollY < lastScrollY) {
++          setIsVisible(true);
++        } else if (currentScrollY > lastScrollY + 6) {
++          setIsVisible(false);
++          setIsMenuOpen(false);
++        }
+ 
+-      lastScrollYRef.current = currentScrollY;
++        lastScrollYRef.current = currentScrollY;
++      });
+     };
+ 
+     window.addEventListener('scroll', handleScroll, { passive: true });

@@ -61,10 +61,12 @@
     radial-gradient(ellipse 40% 60% at 10% 60%, rgba(255, 255, 255, 0.05), transparent 60%);
 }
 
-.theme-mono .global-canvas-bars {
-  backdrop-filter: blur(4px) saturate(0%);
-  -webkit-backdrop-filter: blur(4px) saturate(0%);
-}
+/* .theme-mono .global-canvas-bars intentionally has no backdrop-filter:
+   this is a position:fixed, inset:0 layer covering the entire viewport,
+   so any blur/saturate on it gets recomposited by the GPU on every scroll
+   frame across the whole page. It only ever sits over flat gradients, so
+   there is nothing worth blurring underneath it — this was re-added at
+   some point and is one of the bigger sources of scroll jank on mobile. */
 
 html,
 body {
@@ -167,15 +169,15 @@ a {
   from {
     opacity: 0;
     transform: translateY(48px) scale(0.96);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(var(--glass-blur, 12px));
+    -webkit-backdrop-filter: blur(var(--glass-blur, 12px));
   }
 
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(var(--glass-blur, 12px));
+    -webkit-backdrop-filter: blur(var(--glass-blur, 12px));
   }
 }
 
@@ -183,15 +185,15 @@ a {
   from {
     opacity: 1;
     transform: translateY(0) scale(1);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(var(--glass-blur, 12px));
+    -webkit-backdrop-filter: blur(var(--glass-blur, 12px));
   }
 
   to {
     opacity: 0;
     transform: translateY(48px) scale(0.96);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(var(--glass-blur, 12px));
+    -webkit-backdrop-filter: blur(var(--glass-blur, 12px));
   }
 }
 
@@ -201,16 +203,16 @@ a {
     opacity: 0;
     transform: translateY(-14px) scale(0.97);
     filter: blur(4px);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(var(--glass-blur, 12px));
+    -webkit-backdrop-filter: blur(var(--glass-blur, 12px));
   }
 
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
     filter: blur(0);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(var(--glass-blur, 12px));
+    -webkit-backdrop-filter: blur(var(--glass-blur, 12px));
   }
 }
 
@@ -256,7 +258,13 @@ a {
 [data-card-reveal] {
   opacity: 0;
   transform: translateY(48px) scale(0.96);
-  will-change: opacity, transform;
+  /* will-change removed: this rule matches every project/skill/experience
+     card on the page, so it was telling the browser to keep a dedicated
+     GPU layer ready for ALL of them simultaneously, for the entire time
+     they sit off-screen waiting to be revealed — not just during their
+     one-time 0.55s reveal animation. Modern browsers already promote an
+     element to its own layer automatically once its animation starts,
+     so the hint here was pure overhead with no upside. */
 }
 
 [data-card-reveal].card-in {
@@ -634,8 +642,8 @@ a {
 .hero-social-link {
   align-items: center;
   background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(var(--glass-blur, 12px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 12px));
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 50%;
   color: var(--white);
@@ -707,8 +715,8 @@ a {
   align-items: center;
   animation: glassPulse 8s ease-in-out infinite;
   background: transparent;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(var(--glass-blur, 18px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 18px));
   border: 1px dashed rgba(255, 255, 255, 0.5);
   border-radius: 999px;
   box-shadow: none;
@@ -757,8 +765,8 @@ a {
 .hero-scroll-cue {
   align-items: center;
   background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(var(--glass-blur, 16px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 16px));
   border: 1px dashed rgba(255, 255, 255, 0.4);
   border-radius: 999px;
   bottom: 1.5rem;
@@ -799,8 +807,8 @@ a {
 
 .nav-glass-shell {
   background: transparent;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(var(--glass-blur, 18px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 18px));
   border: 1px dashed rgba(255, 255, 255, 0.5);
   border-radius: 999px;
   box-shadow: none;
@@ -809,8 +817,8 @@ a {
 .mobile-nav-panel {
 
   /* var(--charcoal), opaque enough to guarantee contrast */
-  backdrop-filter: blur(20px) saturate(140%);
-  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  backdrop-filter: blur(var(--glass-blur, 20px)) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--glass-blur, 20px)) saturate(140%);
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 20px;
   /* matches your other glass cards, not the pill */
@@ -937,8 +945,8 @@ a {
   position: absolute;
   z-index: 1;
   background: transparent;
-  backdrop-filter: blur(3px) saturate(110%);
-  -webkit-backdrop-filter: blur(3px) saturate(110%);
+  backdrop-filter: blur(var(--glass-blur, 3px)) saturate(110%);
+  -webkit-backdrop-filter: blur(var(--glass-blur, 3px)) saturate(110%);
 }
 
 /* Warm glow overlay */
@@ -956,8 +964,8 @@ a {
 
 .about-title-pill {
   background: transparent;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(var(--glass-blur, 18px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 18px));
   border: 1px dashed rgba(255, 255, 255, 0.45);
   border-radius: 999px;
   display: inline-flex;
@@ -1017,7 +1025,11 @@ a {
 
 .about-reveal-word {
   display: inline;
-  will-change: color;
+  /* will-change: color removed — applied to every one of the ~80-90 word
+     spans in this section permanently, for a transition most browsers
+     don't even layer-promote for. Harmless individually, but it's
+     unnecessary style-engine overhead multiplied by every word on the
+     page for no measurable benefit. */
 }
 
 .about-reveal-highlight {
@@ -1042,8 +1054,8 @@ a {
 /* ── About Floating Bentos ── */
 .about-floating-bento {
   background: transparent;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(var(--glass-blur, 16px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 16px));
   border: 1px dashed rgba(255, 255, 255, 0.35);
   border-radius: 20px;
   padding: 1.5rem;
@@ -1051,8 +1063,14 @@ a {
   display: flex;
   flex-direction: column;
   opacity: 0;
-  will-change: transform, opacity;
-  /* backdrop-filter runs in its own compositing layer; keep it in keyframes too */
+  /* will-change removed: it was set permanently here, which keeps the
+     browser holding a separate GPU-composited layer alive for every one
+     of these cards for the entire life of the page, not just the ~0.8s
+     they're actually animating in. will-change is a hint for an upcoming
+     change, not a general "make this fast" switch — leaving it on
+     indefinitely spends GPU memory/compositing budget for no benefit
+     once the reveal animation is done. The .slide-in-left/-right
+     animation classes below add it only while the animation runs. */
 }
 
 .about-floating-bento:hover {
@@ -1093,15 +1111,15 @@ a {
   from {
     opacity: 0;
     transform: translateX(-40px);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(var(--glass-blur, 12px));
+    -webkit-backdrop-filter: blur(var(--glass-blur, 12px));
   }
 
   to {
     opacity: 1;
     transform: translateX(0);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(var(--glass-blur, 12px));
+    -webkit-backdrop-filter: blur(var(--glass-blur, 12px));
   }
 }
 
@@ -1109,15 +1127,15 @@ a {
   from {
     opacity: 0;
     transform: translateX(40px);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(var(--glass-blur, 12px));
+    -webkit-backdrop-filter: blur(var(--glass-blur, 12px));
   }
 
   to {
     opacity: 1;
     transform: translateX(0);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(var(--glass-blur, 12px));
+    -webkit-backdrop-filter: blur(var(--glass-blur, 12px));
   }
 }
 
@@ -1125,8 +1143,8 @@ a {
 
 .experience-title-pill {
   background: transparent;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(var(--glass-blur, 18px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 18px));
   border: 1px dashed rgba(255, 255, 255, 0.45);
   border-radius: 999px;
   display: inline-flex;
@@ -1150,8 +1168,8 @@ a {
 
 .experience-glass-card {
   background: transparent;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(var(--glass-blur, 18px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 18px));
   border: 1px dashed rgba(255, 255, 255, 0.35);
   border-radius: 20px;
   padding: 2rem;
@@ -1183,7 +1201,7 @@ a {
   justify-content: space-between;
   gap: 1rem;
   background: transparent;
-  backdrop-filter: blur(18px);
+  backdrop-filter: blur(var(--glass-blur, 18px));
   border: 1px dashed rgba(255, 255, 255, 0.3);
   border-radius: 999px;
   padding: 0.6rem 1.2rem;
@@ -1233,8 +1251,8 @@ a {
 
 .skills-title-pill {
   background: transparent;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(var(--glass-blur, 18px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 18px));
   border: 1px dashed rgba(255, 255, 255, 0.45);
   border-radius: 999px;
   display: inline-flex;
@@ -1253,8 +1271,8 @@ a {
 
 .skills-glass-card {
   background: transparent;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(var(--glass-blur, 18px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 18px));
   border: 1px dashed rgba(255, 255, 255, 0.35);
   border-radius: 20px;
   padding: 2rem;
@@ -1292,8 +1310,8 @@ a {
   justify-content: center;
   padding: 1.25rem 0.5rem;
   background: transparent;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(var(--glass-blur, 12px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 12px));
   border: 1px dashed rgba(255, 255, 255, 0.2);
   border-radius: 14px;
   transition: border-color 300ms ease, transform 300ms ease;
@@ -1311,8 +1329,8 @@ a {
   align-items: center;
   padding: 0.85rem 1rem;
   background: transparent;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(var(--glass-blur, 12px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 12px));
   border: 1px dashed rgba(255, 255, 255, 0.2);
   border-radius: 14px;
   transition: border-color 300ms ease, transform 300ms ease;
@@ -1342,8 +1360,8 @@ a {
 
 .skills-strength-card {
   background: transparent;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(var(--glass-blur, 18px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 18px));
   border: 1px dashed rgba(255, 255, 255, 0.3);
   border-radius: 20px;
   padding: 1.5rem;
@@ -1384,8 +1402,8 @@ a {
 
 .projects-title-pill {
   background: transparent;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(var(--glass-blur, 18px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 18px));
   border: 1px dashed rgba(255, 255, 255, 0.45);
   border-radius: 999px;
   display: inline-flex;
@@ -1406,8 +1424,8 @@ a {
   display: flex;
   flex-direction: column;
   background: transparent;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(var(--glass-blur, 18px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 18px));
   border: 1px dashed rgba(255, 255, 255, 0.35);
   border-radius: 20px;
   padding: 2.5rem;
@@ -1432,8 +1450,8 @@ a {
 
 .project-tag {
   background: transparent;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(var(--glass-blur, 10px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 10px));
   border: 1px dashed rgba(255, 255, 255, 0.25);
   border-radius: 999px;
   color: rgba(255, 255, 255, 0.85);
@@ -1451,8 +1469,8 @@ a {
   display: flex;
   align-items: center;
   background: transparent;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(var(--glass-blur, 12px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 12px));
   border: 1px dashed rgba(255, 255, 255, 0.3);
   border-radius: 999px;
   padding: 0.5rem 1.2rem;
@@ -1475,8 +1493,8 @@ a {
 
 .contact-title-pill {
   background: transparent;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(var(--glass-blur, 18px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 18px));
   border: 1px dashed rgba(255, 255, 255, 0.45);
   border-radius: 999px;
   display: inline-flex;
@@ -1498,8 +1516,8 @@ a {
   align-items: center;
   gap: 1rem;
   background: transparent;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(var(--glass-blur, 18px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 18px));
   border: 1px dashed rgba(255, 255, 255, 0.3);
   border-radius: 20px;
   padding: 1.5rem;
@@ -1528,8 +1546,8 @@ a {
 
 .contact-form-card {
   background: transparent;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(var(--glass-blur, 18px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 18px));
   border: 1px dashed rgba(255, 255, 255, 0.35);
   border-radius: 20px;
   padding: 2rem;
@@ -1538,8 +1556,8 @@ a {
 .contact-input {
   width: 100%;
   background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(var(--glass-blur, 8px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 8px));
   border: 1px dashed rgba(255, 255, 255, 0.2);
   border-radius: 12px;
   padding: 1rem 1.25rem;
@@ -1573,8 +1591,8 @@ a {
   justify-content: center;
   gap: 0.5rem;
   background: transparent;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(var(--glass-blur, 18px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 18px));
   border: 1px dashed rgba(255, 255, 255, 0.45);
   border-radius: 999px;
   padding: 1.1rem 2rem;
@@ -1602,8 +1620,8 @@ a {
   border-radius: 12px;
   text-align: center;
   font-size: 0.9rem;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(var(--glass-blur, 12px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 12px));
 }
 
 .contact-status-msg--error {
@@ -1622,8 +1640,8 @@ a {
 
 .footer-glass-panel {
   background: transparent;
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(var(--glass-blur, 24px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 24px));
   border-top: 1px dashed rgba(255, 255, 255, 0.35);
 }
 
@@ -1635,8 +1653,8 @@ a {
   height: 2.5rem;
   border-radius: 50%;
   background: transparent;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(var(--glass-blur, 12px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 12px));
   border: 1px dashed rgba(255, 255, 255, 0.3);
   color: rgba(255, 255, 255, 0.6);
   transition: border-color 300ms ease, color 300ms ease, transform 300ms ease, background 300ms ease;
@@ -1689,8 +1707,8 @@ a {
   background:
     linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.038) 46%, rgba(239, 49, 39, 0.06)),
     linear-gradient(315deg, rgba(255, 205, 122, 0.055), rgba(255, 255, 255, 0));
-  backdrop-filter: blur(30px) saturate(142%);
-  -webkit-backdrop-filter: blur(30px) saturate(142%);
+  backdrop-filter: blur(var(--glass-blur, 30px)) saturate(142%);
+  -webkit-backdrop-filter: blur(var(--glass-blur, 30px)) saturate(142%);
   border: 1px solid rgba(255, 255, 255, 0.14);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.18),
@@ -1735,8 +1753,8 @@ a {
     radial-gradient(circle at 18% 10%, rgba(255, 255, 255, 0.14), transparent 28%),
     linear-gradient(145deg, rgba(255, 255, 255, 0.086), rgba(255, 255, 255, 0.028)),
     rgba(110, 16, 17, 0.16);
-  backdrop-filter: blur(22px) saturate(136%);
-  -webkit-backdrop-filter: blur(22px) saturate(136%);
+  backdrop-filter: blur(var(--glass-blur, 22px)) saturate(136%);
+  -webkit-backdrop-filter: blur(var(--glass-blur, 22px)) saturate(136%);
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.14),
@@ -1765,8 +1783,8 @@ a {
 
 .shine-button,
 .liquid-control {
-  backdrop-filter: blur(24px) saturate(135%);
-  -webkit-backdrop-filter: blur(24px) saturate(135%);
+  backdrop-filter: blur(var(--glass-blur, 24px)) saturate(135%);
+  -webkit-backdrop-filter: blur(var(--glass-blur, 24px)) saturate(135%);
   border: 1px solid rgba(255, 255, 255, 0.17);
   color: var(--white);
   transition: transform 650ms cubic-bezier(0.19, 1, 0.22, 1), border-color 650ms ease, box-shadow 650ms ease, background 650ms ease;
@@ -1947,8 +1965,8 @@ textarea:-webkit-autofill {
 
     /* Frosted glass styles */
     background: transparent;
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(var(--glass-blur, 18px));
+    -webkit-backdrop-filter: blur(var(--glass-blur, 18px));
     border: 1px dashed rgba(255, 255, 255, 0.45);
   }
 
@@ -2373,4 +2391,47 @@ textarea:-webkit-autofill {
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ── Mobile performance pass ──
+   Backdrop-filter's blur radius directly drives how expensive it is for the
+   browser to composite: this stylesheet has 80+ backdrop-filter
+   declarations, every one of which now routes its radius through
+   --glass-blur (falling back to its original per-element value on desktop).
+   Dropping that one variable on narrow viewports cuts the compositing cost
+   of every glass surface on the page at once, without having to touch each
+   selector individually or change how anything looks structurally. 6px
+   still reads as "frosted" at the sizes these panels render on mobile;
+   go lower (or to 0 to disable blur outright and fall back to the flat
+   dashed-border look) if it still isn't smooth enough on your test device. */
+@media (max-width: 768px) {
+  :root {
+    --glass-blur: 6px;
+  }
+
+  /* This badge runs an 8s infinite box-shadow animation, which forces a
+     repaint every frame forever (not just while scrolling), stacked on
+     top of a live blur layer. It's purely decorative, so switch it off
+     on mobile rather than paying for it continuously. */
+  .hero-badge {
+    animation: none;
+  }
+}
+
+/* content-visibility lets the browser skip layout/paint/compositing work
+   entirely for sections that are off-screen, only doing that work once a
+   section is about to scroll into view. With this many glass/blur surfaces
+   spread across About/Experience/Skills/Projects/Contact, this means the
+   browser is only ever compositing the blur layers actually near the
+   viewport instead of all of them at once. contain-intrinsic-size reserves
+   approximate space up front so the page doesn't jump as each section
+   "wakes up". If IntersectionObserver-based reveals in any section stop
+   firing correctly after this, drop content-visibility on that one
+   section's id first to isolate it. */
+#experience,
+#skills,
+#projects,
+#contact {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 900px;
 }

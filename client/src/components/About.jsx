@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
 import { useElementReveal } from '../hooks/useElementReveal';
 import { Brain, Database, BarChart3, Trophy, Globe } from 'lucide-react';
-import sahilImg from '../assets/ChatGPT Image Aug 24, 2026, 02_42_17 AM.png';
+import sahilImg from '../assets/about-silhouette.webp';
 
 /* ── Asymmetric Floating Bentos ── */
 const leftBentos = [
@@ -162,7 +162,7 @@ const About = () => {
 
         {/* ── Amalgamated Asymmetric Layout ── */}
         <div className="about-content-layout flex flex-col lg:flex-row items-center lg:items-start justify-between gap-12 lg:gap-6 mt-12">
-          
+
           {/* Left Floating Bentos */}
           <div className="about-bento-rail w-full lg:w-[24%] flex flex-col mt-0 lg:mt-12" ref={leftDomainRef}>
             {leftBentos.map((b) => (
